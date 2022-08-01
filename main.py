@@ -21,11 +21,20 @@ def yellow_filter(image):
 
 if __name__ == '__main__':
     # 2.5-second grace period to tab into the game
+    cv2.namedWindow("Hough Transform", cv2.WINDOW_AUTOSIZE)
     time.sleep(2.5)
 
     # Main loop that gets screenshot and processes it
     with mss() as sct:
         while True:
+            begin_tim = time.time()
+
+            # Holds down the 'a' key to make bus go forward
+            keyboard.press('a')
+
+            keyboard.release('left')
+            keyboard.release('right')
+
             # noinspection PyTypeChecker
             # Grabs screenshot using specific BBOX, as long as emulator is windowed maximized, it will grab full left
             # windshield. Then passes the screenshot through the yellow filter.
@@ -40,7 +49,7 @@ if __name__ == '__main__':
             img_edges = cv2.Canny(image=img_blur, threshold1=50, threshold2=200)
 
             # Creating the final image to draw the hough transform results on, and running the actual hough transform.
-            final = img_edges
+            final = cv2.cvtColor(img_edges, cv2.COLOR_GRAY2BGR)
             linesP = cv2.HoughLinesP(img_edges, 1, np.pi / 180, 50, None, 30, 20)
 
             if linesP is not None:
@@ -54,20 +63,12 @@ if __name__ == '__main__':
                 # Depending on the slope of the line, move a specific direction to stay on road. Needs to be adjusted,
                 # as of now the car will sway back and forth so ideally would like to make movement smoother
                 if slope < 0:
-                    print("left")
-                    keyboard.press('k')
-                    time.sleep(0.1)
-                    keyboard.release('k')
+                    keyboard.press('left')
                 elif slope > 0:
-                    print("right")
-                    keyboard.press('l')
-                    time.sleep(0.1)
-                    keyboard.release('l')
-                else:
-                    print("straight")
+                    keyboard.press('right')
 
-            # Holds down the 'a' key to make bus go forward
-            keyboard.press('a')
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            cv2.putText(final, f"fps: {int(1 / (time.time() - begin_tim))}",(10,500), font, 1,(255,255,255),2,cv2.LINE_AA)
             cv2.imshow("Hough Transform", final)
 
             # Checks if Q key is pressed while open-cv window is focused, then closes it and ends the program

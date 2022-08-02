@@ -1,13 +1,16 @@
 import numpy as np
 import cv2
 from mss import mss
-from PIL import Image
 import time
 import keyboard
 
 
 def nothing():
     pass
+
+
+def hamming_distance(hex1, hex2):
+    return sum(c1 != c2 for c1, c2 in zip(hex1, hex2))
 
 
 # Yellow color filter for image passed through, uses values determined via trackbar in open-cv window.
@@ -19,10 +22,27 @@ def yellow_filter(image):
     return filtered
 
 
+def create_hash(image):
+    small = cv2.resize(image, (8, 8))
+    small_gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+    bits = ""
+    average = np.average(small_gray)
+    for i in range(0, 8):
+        for j in range(0, 8):
+            if small_gray[i][j] <= average:
+                bits += "1"
+            else:
+                bits += "0"
+    return hex(int(bits, 2))
+
+
 if __name__ == '__main__':
     # 2.5-second grace period to tab into the game
     cv2.namedWindow("Hough Transform", cv2.WINDOW_AUTOSIZE)
     time.sleep(2.5)
+
+    # This is the hex of the clock that appears at the end, this will allow us to see if game has ended.
+    end_img = 0xd3c341c00103ade7
 
     # Main loop that gets screenshot and processes it
     with mss() as sct:
@@ -68,9 +88,14 @@ if __name__ == '__main__':
                     keyboard.press('right')
 
             font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(final, f"fps: {int(1 / (time.time() - begin_tim))}",(10,500), font, 1,(255,255,255),2,cv2.LINE_AA)
+            cv2.putText(final, f"fps: {int(1 / (time.time() - begin_tim))}", (10, 500), font, 1, (255, 255, 255), 2,
+                        cv2.LINE_AA)
             cv2.imshow("Hough Transform", final)
 
+            clk = np.array(sct.grab((813, 620, 1174, 981)))
+            clk_hash = create_hash(clk)
+            if hamming_distance(clk_hash, end_img) < 5:
+                keyboard.press_and_release('enter')
             # Checks if Q key is pressed while open-cv window is focused, then closes it and ends the program
             if cv2.waitKey(25) & 0xFF == ord("q"):
                 keyboard.release('a')

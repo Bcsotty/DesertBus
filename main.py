@@ -33,7 +33,7 @@ def create_hash(image):
                 bits += "1"
             else:
                 bits += "0"
-    return hex(int(bits, 2))
+    return str(hex(int(bits, 2)))[2:]
 
 
 if __name__ == '__main__':
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     time.sleep(2.5)
 
     # This is the hex of the clock that appears at the end, this will allow us to see if game has ended.
-    end_img = 0xd3c341c00103ade7
+    end_img = "d3c341c00103ade7"
 
     # Main loop that gets screenshot and processes it
     with mss() as sct:
@@ -92,12 +92,13 @@ if __name__ == '__main__':
                         cv2.LINE_AA)
             cv2.imshow("Hough Transform", final)
 
+            keyboard.release('a')
             clk = np.array(sct.grab((813, 620, 1174, 981)))
             clk_hash = create_hash(clk)
+            print(clk_hash)
             if hamming_distance(clk_hash, end_img) < 5:
                 keyboard.press_and_release('enter')
             # Checks if Q key is pressed while open-cv window is focused, then closes it and ends the program
             if cv2.waitKey(25) & 0xFF == ord("q"):
-                keyboard.release('a')
                 cv2.destroyAllWindows()
                 break

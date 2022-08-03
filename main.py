@@ -23,9 +23,6 @@ if __name__ == '__main__':
     cv2.namedWindow("Hough Transform", cv2.WINDOW_AUTOSIZE)
     time.sleep(2.5)
 
-    # This is the hex of the clock that appears at the end, this will allow us to see if game has ended.
-    end_img = "d3c341c00103ade7"
-
     # Main loop that gets screenshot and processes it
     with mss() as sct:
         while True:
@@ -66,15 +63,19 @@ if __name__ == '__main__':
                 # as of now the car will sway back and forth so ideally would like to make movement smoother
                 if slope < 0:
                     keyboard.press('left')
+                if slope > 0:
+                    keyboard.press('right')
 
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(final, f"fps: {int(1 / (time.time() - begin_tim))}", (10, 500), font, 1, (255, 255, 255), 2,
                         cv2.LINE_AA)
             cv2.imshow("Hough Transform", final)
 
+            time.sleep(0.05)
             keyboard.release('a')
+
             end_check = np.array(sct.grab((794, 560, 795, 561)))
-            if 60 < end_check[0][0][0] < 70:
+            if 62 < end_check[0][0][0] < 67 and 65 < end_check[0][0][1] < 70 and 29 < end_check[0][0][2] < 34:
                 keyboard.press('enter')
                 time.sleep(0.1)
                 keyboard.release('enter')

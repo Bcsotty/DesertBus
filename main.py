@@ -9,10 +9,6 @@ def nothing():
     pass
 
 
-def hamming_distance(hex1, hex2):
-    return sum(c1 != c2 for c1, c2 in zip(hex1, hex2))
-
-
 # Yellow color filter for image passed through, uses values determined via trackbar in open-cv window.
 # Will return the image with just the yellow lines.
 def yellow_filter(image):
@@ -20,20 +16,6 @@ def yellow_filter(image):
     mask = cv2.inRange(hsv, (20, 180, 200), (40, 200, 250))
     filtered = cv2.bitwise_and(image, image, mask=mask)
     return filtered
-
-
-def create_hash(image):
-    small = cv2.resize(image, (8, 8))
-    small_gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
-    bits = ""
-    average = np.average(small_gray)
-    for i in range(0, 8):
-        for j in range(0, 8):
-            if small_gray[i][j] <= average:
-                bits += "1"
-            else:
-                bits += "0"
-    return str(hex(int(bits, 2)))[2:]
 
 
 if __name__ == '__main__':
@@ -84,8 +66,6 @@ if __name__ == '__main__':
                 # as of now the car will sway back and forth so ideally would like to make movement smoother
                 if slope < 0:
                     keyboard.press('left')
-                elif slope > 0:
-                    keyboard.press('right')
 
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(final, f"fps: {int(1 / (time.time() - begin_tim))}", (10, 500), font, 1, (255, 255, 255), 2,
@@ -93,11 +73,12 @@ if __name__ == '__main__':
             cv2.imshow("Hough Transform", final)
 
             keyboard.release('a')
-            clk = np.array(sct.grab((813, 620, 1174, 981)))
-            clk_hash = create_hash(clk)
-            print(clk_hash)
-            if hamming_distance(clk_hash, end_img) < 5:
-                keyboard.press_and_release('enter')
+            end_check = np.array(sct.grab((794, 560, 795, 561)))
+            if 60 < end_check[0][0][0] < 70:
+                keyboard.press('enter')
+                time.sleep(0.1)
+                keyboard.release('enter')
+
             # Checks if Q key is pressed while open-cv window is focused, then closes it and ends the program
             if cv2.waitKey(25) & 0xFF == ord("q"):
                 cv2.destroyAllWindows()

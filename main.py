@@ -13,7 +13,7 @@ def nothing():
 # Will return the image with just the yellow lines.
 def yellow_filter(image):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv, (20, 180, 200), (40, 200, 250))
+    mask = cv2.inRange(hsv, (20, 40, 200), (40, 255, 255))
     filtered = cv2.bitwise_and(image, image, mask=mask)
     return filtered
 

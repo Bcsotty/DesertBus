@@ -5,10 +5,6 @@ import time
 import keyboard
 
 
-def nothing():
-    pass
-
-
 # Yellow color filter for image passed through, uses values determined via trackbar in open-cv window.
 # Will return the image with just the yellow lines.
 def yellow_filter(image):
@@ -49,7 +45,7 @@ if __name__ == '__main__':
 
             # Creating the final image to draw the hough transform results on, and running the actual hough transform.
             final = cv2.cvtColor(img_edges, cv2.COLOR_GRAY2BGR)
-            linesP = cv2.HoughLinesP(img_edges, 1, np.pi / 180, 50, None, 30, 20)
+            linesP = cv2.HoughLinesP(img_edges, 1, np.pi / 180, 10, None, 7, 3)
 
             if linesP is not None:
                 # Draws the lines from the hough transform onto the image to be shown in open-cv window

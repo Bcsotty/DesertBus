@@ -20,7 +20,7 @@ if __name__ == '__main__':
     time.sleep(2.5)
 
     increment = True
-    counter = 36
+    counter = 37
     # Main loop that gets screenshot and processes it
     with mss() as sct:
         while True:

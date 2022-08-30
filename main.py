@@ -19,7 +19,8 @@ if __name__ == '__main__':
     cv2.namedWindow("Hough Transform", cv2.WINDOW_AUTOSIZE)
     time.sleep(2.5)
 
-    counter = 35
+    increment = True
+    counter = 36
     # Main loop that gets screenshot and processes it
     with mss() as sct:
         while True:
@@ -75,11 +76,14 @@ if __name__ == '__main__':
 
             end_check = np.array(sct.grab((794, 560, 795, 561)))
             if 62 < end_check[0][0][0] < 67 and 65 < end_check[0][0][1] < 70 and 29 < end_check[0][0][2] < 34:
-                counter += 1
+                if increment:
+                    counter += 1
+                    increment = not increment
                 keyboard.press('enter')
                 time.sleep(0.1)
                 keyboard.release('enter')
-
+            else:
+                increment = True
             # Checks if Q key is pressed while open-cv window is focused, then closes it and ends the program
             if cv2.waitKey(25) & 0xFF == ord("q"):
                 cv2.destroyAllWindows()

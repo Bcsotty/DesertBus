@@ -23,6 +23,7 @@ if __name__ == '__main__':
     cv2.namedWindow("Hough Transform", cv2.WINDOW_AUTOSIZE)
     time.sleep(2.5)
 
+    counter = 35
     # Main loop that gets screenshot and processes it
     with mss() as sct:
         while True:
@@ -69,6 +70,8 @@ if __name__ == '__main__':
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(final, f"fps: {int(1 / (time.time() - begin_tim))}", (10, 500), font, 1, (255, 255, 255), 2,
                         cv2.LINE_AA)
+            cv2.putText(final, f"Points: {counter}", (10, 450), font, 1, (255, 255, 255), 2,
+                        cv2.LINE_AA)
             cv2.imshow("Hough Transform", final)
 
             time.sleep(0.05)
@@ -76,6 +79,7 @@ if __name__ == '__main__':
 
             end_check = np.array(sct.grab((794, 560, 795, 561)))
             if 62 < end_check[0][0][0] < 67 and 65 < end_check[0][0][1] < 70 and 29 < end_check[0][0][2] < 34:
+                counter += 1
                 keyboard.press('enter')
                 time.sleep(0.1)
                 keyboard.release('enter')

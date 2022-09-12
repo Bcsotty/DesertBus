@@ -5,6 +5,7 @@ import time
 import keyboard
 import sys
 import threading
+from queue import Queue, Empty
 
 
 def press_a():
@@ -13,6 +14,18 @@ def press_a():
         time.sleep(0.05)
         keyboard.release('a')
 
+
+def movement(queue):
+    slope = 0
+    while running:
+        keyboard.release('left')
+        try:
+            slope = queue.get(block=False)
+        except Empty:
+            slope = slope / 2 + 0.25
+        if slope < 0:
+            keyboard.press('left')
+        time.sleep(0.008)
 
 
 def edge_detection(image):
@@ -52,11 +65,14 @@ def draw_image(image, threshold=10, minLineLength=7, maxLineGap=3):
 if __name__ == '__main__':  
     global running 
     running = True
+    queue = Queue()
     # 2.5-second grace period to tab into the game
     time.sleep(2.5)
 
     t1 = threading.Thread(target=press_a)
+    t2 = threading.Thread(target=movement, args=(queue,))
     t1.start()
+    t2.start()
     increment = True
     counter = sys.argv[0] if isinstance(sys.argv[0], int) else 0
     # Main loop that gets screenshot and processes it
@@ -65,17 +81,14 @@ if __name__ == '__main__':
             while True:
                 begin_tim = time.time()
 
-                keyboard.release('left')
-
                 # Grabs screenshot using specific BBOX, as long as emulator is windowed maximized, it will grab full left
                 # windshield. Then passes the screenshot through the yellow filter.
                 sct_img = np.array(sct.grab((241, 236, 1150, 809)))
 
                 s = image_processing(sct_img)
                 
-                if s < 0:
-                    pass
-                    keyboard.press('left')
+                queue.put(s)
+
                 print(f"fps: {int(1 / (time.time() - begin_tim))}")
                 time.sleep(0.025)
                 end_check = np.array(sct.grab((794, 560, 795, 561)))
@@ -95,3 +108,4 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         running = False
         t1.join()
+        t2.join()
